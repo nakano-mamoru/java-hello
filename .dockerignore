@@ -1,0 +1,19 @@
+# Git 管理ファイルは除外
+.git
+.gitignore
+
+# ビルド成果物
+target/
+build/
+
+# IDE/エディタ関連
+.idea/
+*.iml
+.vscode/
+
+# OS 系のゴミファイル
+.DS_Store
+Thumbs.db
+
+# ローカル環境用設定
+application-local.yml
