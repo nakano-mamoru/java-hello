@@ -1,4 +1,4 @@
-name: build
+name: CI/CD Spring Boot to ECS
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       - develop
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,16 +24,10 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Build
+      - name: Build with Maven
         run: ./mvnw clean package -DskipTests
 
-        # Upload the built JAR file as an artifact for later use
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-${{ github.run_number }}-${{ github.sha }}
-          path: target/*.jar        
-      # AWS ECR steps
+# AWS ECR steps
       - name: configure aws
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -53,7 +47,33 @@ jobs:
           docker tag hello-java:latest \
           ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hello-java:latest
 
-      - name: push image
+      - name: Push Docker image to ECR
         run: |
           docker push \
           ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hello-java:latest
+
+      - name: Update ECS service
+        run: |
+          CLUSTER_NAME=your-cluster
+          SERVICE_NAME=your-service
+          IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hello-java:latest
+
+          # タスク定義の現在設定を取得
+          TASK_DEF_JSON=$(aws ecs describe-task-definition --task-definition $SERVICE_NAME)
+
+          # イメージだけ書き換えて新しいタスク定義を登録
+          NEW_TASK_DEF=$(echo $TASK_DEF_JSON | jq --arg IMAGE "$IMAGE_URI" '.taskDefinition | .containerDefinitions[0].image=$IMAGE | {family: .family, containerDefinitions: [.containerDefinitions[0]] }')
+          echo "$NEW_TASK_DEF" > new-task.json
+
+          # 新しいタスク定義を登録
+          aws ecs register-task-definition --cli-input-json file://new-task.json
+
+          # ECS サービスを更新
+          aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --force-new-deployment
+
+# Upload the built JAR file as an artifact for later use
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ github.run_number }}-${{ github.sha }}
+          path: target/*.jar        
