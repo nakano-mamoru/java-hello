@@ -27,8 +27,33 @@ jobs:
       - name: Build
         run: ./mvnw clean package -DskipTests
 
+        # Upload the built JAR file as an artifact for later use
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-${{ github.run_number }}-${{ github.sha }}
           path: target/*.jar        
+      # AWS ECR steps
+      - name: configure aws
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: login ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: build docker image
+        run: |
+          docker build -t hello-java .
+
+      - name: tag image
+        run: |
+          docker tag hello-java:latest \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hello-java:latest
+
+      - name: push image
+        run: |
+          docker push \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hello-java:latest
