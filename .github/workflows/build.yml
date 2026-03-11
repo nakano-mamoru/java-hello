@@ -11,6 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Set a timestamp environment variable for the build
+      - name: Set timestamp
+        run: echo "BUILD_TIME=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -22,3 +26,9 @@ jobs:
 
       - name: Build
         run: ./mvnw clean package -DskipTests
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ github.run_number }}-${{ github.sha }}
+          path: target/*.jar        
