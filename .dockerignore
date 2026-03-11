@@ -3,7 +3,8 @@
 .gitignore
 
 # ビルド成果物
-target/
+target/*
+!target/*.jar
 build/
 
 # IDE/エディタ関連

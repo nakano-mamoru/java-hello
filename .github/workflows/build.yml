@@ -54,8 +54,8 @@ jobs:
 
       - name: Update ECS service
         run: |
-          CLUSTER_NAME=your-cluster
-          SERVICE_NAME=your-service
+          CLUSTER_NAME=hello-cluster
+          SERVICE_NAME=hello-java-service
           IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hello-java:latest
 
           # タスク定義の現在設定を取得
