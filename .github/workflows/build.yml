@@ -64,7 +64,7 @@ jobs:
 
           # イメージだけ書き換えて新しいタスク定義を登録
           # NEW_TASK_DEF=$(echo $TASK_DEF_JSON | jq --arg IMAGE "$IMAGE_URI" '.taskDefinition | .containerDefinitions[0].image=$IMAGE | {family: .family, containerDefinitions: [.containerDefinitions[0]] }')
-          NEW_TASK_DEF=$(echo $TASK_DEF_JSON | jq --arg IMAGE "$IMAGE_URI" '.taskDefinition | .containerDefinitions[0].image=$IMAGE | {family: .family)
+          NEW_TASK_DEF=$(echo $TASK_DEF_JSON | jq --arg IMAGE "$IMAGE_URI" '.taskDefinition | .containerDefinitions[0].image=$IMAGE | {family: .family) }')
           echo "$NEW_TASK_DEF" > new-task.json
 
           # 新しいタスク定義を登録
