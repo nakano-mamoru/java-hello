@@ -56,10 +56,11 @@ jobs:
         run: |
           CLUSTER_NAME=hello-cluster
           SERVICE_NAME=hello-java-service
+          TASK_NAME=hello-java
           IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hello-java:latest
 
           # タスク定義の現在設定を取得
-          TASK_DEF_JSON=$(aws ecs describe-task-definition --task-definition $SERVICE_NAME)
+          TASK_DEF_JSON=$(aws ecs describe-task-definition --task-definition $TASK_NAME)
 
           # イメージだけ書き換えて新しいタスク定義を登録
           NEW_TASK_DEF=$(echo $TASK_DEF_JSON | jq --arg IMAGE "$IMAGE_URI" '.taskDefinition | .containerDefinitions[0].image=$IMAGE | {family: .family, containerDefinitions: [.containerDefinitions[0]] }')
