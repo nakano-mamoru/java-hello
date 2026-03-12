@@ -24,6 +24,21 @@ jobs:
           distribution: temurin
           java-version: 21
 
+# Create version.json with build metadata
+      - name: Create version.json
+        run: |
+          BUILD_TIME=$(date +%Y%m%d-%H%M%S)
+
+          cat <<EOF > src/main/resources/version.json
+          {
+            "repository": "${GITHUB_REPOSITORY}",
+            "branch": "${GITHUB_REF_NAME}",
+            "commit": "${GITHUB_SHA}",
+            "buildTime": "${BUILD_TIME}"
+          }
+          EOF
+
+# Build the application using Maven
       - name: Build with Maven
         run: ./mvnw clean package -DskipTests
 
