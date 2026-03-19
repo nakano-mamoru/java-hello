@@ -17,7 +17,7 @@ public class ItemValidator implements ConstraintValidator<Item, Object> {
 
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
-        System.out.println("Validating key: " + key + ", value: " + value);
+        // System.out.println("Validating key: " + key + ", value: " + value);
 
         // nullはスキップ（必要なら @NotNull 併用）
         if (value == null) {

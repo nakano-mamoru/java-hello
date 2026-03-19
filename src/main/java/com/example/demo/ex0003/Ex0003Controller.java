@@ -1,10 +1,7 @@
 package com.example.demo.ex0003;
 
-import java.util.List;
-
 import org.springframework.web.bind.annotation.*;
 
-import com.example.demo.ex0001.Ex0001User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.validation.Valid;
@@ -25,7 +22,7 @@ public class Ex0003Controller {
     @PostMapping("/create")
     public String create(@Valid @RequestBody CustomerRequest request) throws Exception
     {
-        System.out.println("Received request: " + new ObjectMapper().writeValueAsString(request));
+        // System.out.println("Received request: " + new ObjectMapper().writeValueAsString(request));
         return "OK";
     }
 }
