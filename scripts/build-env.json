@@ -1,0 +1,29 @@
+{
+  "columnDictionary": {
+    "source": "doc/resources/define/項目辞書.md",
+    "output": "src/main/resources/metadata/column-dictionary.json"
+  },
+  "codeDefinition": {
+    "source": "doc/resources/define/コード定義.md",
+    "output": "src/main/resources/metadata/code-definition.json"
+  },
+  "ddl": {
+    "schemasRoot": "doc/resources/schemas",
+    "outputRoot": "ddl/create",
+    "tables": {
+      "sourceDir": "doc/resources/tables"
+    },
+    "views": {
+      "sourceDir": "doc/resources/views"
+    },
+    "outputDir": "ddl/create"
+  },
+  "entity": {
+    "package": "com.example.demo.common.entity",
+    "outputDir": "src/main/java/com/example/demo/common/entity"
+  },
+  "enum": {
+    "package": "com.example.demo.common.code",
+    "outputDir": "src/main/java/com/example/demo/common/code"
+  }
+}

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ユーザ管理サンプル</title>
+<style>
+  body { font-family: sans-serif; }
+  input, button { margin: 2px; }
+  table { border-collapse: collapse; margin-top: 10px; }
+  th, td { border: 1px solid #ccc; padding: 4px 8px; }
+</style>
+</head>
+<body>
+
+<h2>ユーザ一覧</h2>
+<button onclick="getUsers()">取得</button>
+<table id="userTable">
+  <thead><tr><th>ID</th><th>名前</th><th>Email</th><th>操作</th></tr></thead>
+  <tbody></tbody>
+</table>
+
+<h2>新規ユーザ作成</h2>
+名前: <input id="name" type="text">
+Email: <input id="email" type="text">
+<button onclick="createUser()">作成</button>
+
+<script>
+const baseUrl = 'http://localhost:8080/ex0001/users';
+
+// GET 全件取得
+function getUsers() {
+  fetch(baseUrl)
+    .then(res => res.json())
+    .then(users => {
+      const tbody = document.querySelector('#userTable tbody');
+      tbody.innerHTML = '';
+      users.forEach(u => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${u.userId}</td>
+          <td>${u.userName}</td>
+          <td>${u.email}</td>
+          <td>
+            <button onclick="deleteUser(${u.id})">削除</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+}
+
+// POST 作成
+function createUser() {
+  const userName = document.getElementById('name').value;
+  const email = document.getElementById('email').value;
+  fetch(baseUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userName, email })
+  })
+  .then(res => res.json())
+  .then(u => {
+    alert(`作成: ${u.id} ${u.userName}`);
+    getUsers();
+  });
+}
+
+// DELETE 削除
+function deleteUser(id) {
+  fetch(`${baseUrl}/${id}`, { method: 'DELETE' })
+    .then(() => getUsers());
+}
+</script>
+
+</body>
+</html>

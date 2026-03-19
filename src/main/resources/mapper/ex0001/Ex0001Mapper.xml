@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.ex0001.Ex0001Mapper">
+
+    <resultMap id="UserResult" type="com.example.demo.ex0001.Ex0001User">
+        <id property="userId" column="user_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="email" column="email"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="UserResult">
+        SELECT *
+        FROM tbl_user
+    </select>
+
+    <select id="findById" resultMap="UserResult">
+        SELECT *
+        FROM tbl_user
+        WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO tbl_user
+        (user_name, email)
+        VALUES
+        (#{userName}, #{email})
+    </insert>
+
+    <update id="update">
+        UPDATE tbl_user
+        SET
+            user_name = #{userName},
+            email = #{email}
+        WHERE user_id = #{userId}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM tbl_user
+        WHERE user_id = #{userId}
+    </delete>
+
+</mapper>

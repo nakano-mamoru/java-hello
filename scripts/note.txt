@@ -1,0 +1,15 @@
+Localデバッグ
+
+1.AWS/MySQLに接続する為に、Powershellを開いて以下のコマンドでポートフォワードする。
+※デバッグ中はPowershellを閉じない
+ssh -i C:\Users\rcsol\.ssh\ec2-key.pem -L 3306:database-2.cb2soo4e8row.ap-northeast-1.rds.amazonaws.com:3306 ec2-user@13.158.55.206
+
+2.Maven,Spring-bootの実行
+.\mvnw.cmd spring-boot:run
+
+
+curl
+
+curl.exe -X POST http://localhost:8080/ex0003/customer/create `
+    -H "Content-Type: application/json" `
+    -d "{\"customerId\":\"12345\",\"customerName\":\"山田太郎\",\"email\":\"taro.yamada@example.com\",\"age\":\"30\"}"

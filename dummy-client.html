@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ブラウザAPIクライアント</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+        }
+
+
+        textarea {
+            width: 100%;
+            resize: vertical;
+        }
+
+
+        button {
+            /* margin-top: 8px; */
+        }
+
+        .list-item {
+            padding: 5px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            font-size: smaller;
+        }
+
+        .list-item:hover {
+            background: #f0f0f0;
+        }
+
+        .disabled {
+            background: #f0f0f0;
+        }
+
+        #left {
+            flex: 1;
+            padding: 10px;
+            /* display: flex; */
+            /* flex-direction: column; */
+            overflow: auto;
+        }
+
+        #right {
+            width: 350px;
+            border-left: 1px solid #ccc;
+            overflow: auto;
+            padding: 10px;
+        }
+
+        #response {
+            height: 150px;
+            overflow: auto;
+            border: 1px solid #ccc;
+            padding: 5px;
+            white-space: pre-wrap;
+            resize: vertical;
+            font-size:smaller;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="left">
+        <select id="method" style="width:12ex;display:inline;">
+            <option value="POST" selected>POST</option>
+            <option value="GET">GET</option>
+            <option value="PUT">PUT</option>
+            <option value="DELETE">DELETE</option>
+        </select>
+        <input type="text" id="url" style="width:70ex;display:inline;">
+        <button id="execute">実行</button>
+        <button id="bookmark" title="ブックマーク">★</button>
+        <br>
+        Header (JSON形式): <textarea id="headers"
+                rows="3">{ "Content-Type": "application/json; charset=UTF-8" }</textarea>
+        Body: <textarea id="body" rows="5">{}</textarea>
+Response:
+        <div id="response" style="bottom:1px"></div>
+    </div>
+
+    <div id="right">
+        <div>
+            <button id="toggle-log">⇔</button>
+            <span id="list-title">RequestLog</span>
+        </div>
+        <div id="list"></div>
+    </div>
+
+    <script>
+        let latestLog = null;
+        const DB_NAME = 'BrowserAPIClientDB';
+        const DB_VERSION = 1;
+        let db;
+        let showingBookmarks = false;
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onupgradeneeded = e => {
+                    db = e.target.result;
+                    if (!db.objectStoreNames.contains('RequestLog')) {
+                        const store = db.createObjectStore('RequestLog', { keyPath: 'id', autoIncrement: true });
+                        store.createIndex('timestamp', 'timestamp');
+                    }
+                    if (!db.objectStoreNames.contains('Bookmark')) {
+                        db.createObjectStore('Bookmark', { keyPath: 'id', autoIncrement: true });
+                    }
+                };
+                request.onsuccess = e => { db = e.target.result; resolve(db); };
+                request.onerror = e => reject(e);
+            });
+        }
+
+        function addLog(entry) {
+            const tx = db.transaction('RequestLog', 'readwrite');
+            const store = tx.objectStore('RequestLog');
+            entry.timestamp = Date.now();
+            store.add(entry);
+
+            // 最大100件
+            store.openCursor(null, 'next').onsuccess = e => {
+                const cursor = e.target.result;
+                if (cursor) {
+                    store.count().onsuccess = c => {
+                        if (c.result > 100) {
+                            store.delete(cursor.primaryKey);
+                        }
+                    };
+                }
+            };
+        }
+
+        function addBookmark(entry) {
+            const name = prompt('ブックマーク名を入力してください', entry.url || 'API名') || (entry.url || 'API名');
+            const tx = db.transaction('Bookmark', 'readwrite');
+            const store = tx.objectStore('Bookmark');
+            store.add({ ...entry, name, timestamp: Date.now() });
+        }
+
+        function getLogs() {
+            return new Promise(resolve => {
+                const tx = db.transaction('RequestLog', 'readonly');
+                const store = tx.objectStore('RequestLog');
+                const items = [];
+                store.openCursor(null, 'prev').onsuccess = e => {
+                    const cursor = e.target.result;
+                    if (cursor) {
+                        items.push(cursor.value);
+                        cursor.continue();
+                    } else resolve(items);
+                };
+            });
+        }
+
+        function getBookmarks() {
+            return new Promise(resolve => {
+                const tx = db.transaction('Bookmark', 'readonly');
+                const store = tx.objectStore('Bookmark');
+                const items = [];
+                store.openCursor(null, 'prev').onsuccess = e => {
+                    const cursor = e.target.result;
+                    if (cursor) {
+                        items.push(cursor.value);
+                        cursor.continue();
+                    } else resolve(items);
+                };
+            });
+        }
+
+        function renderList(items) {
+            const listDiv = document.getElementById('list');
+            latestLog = items.length ? items[0] : null;
+            listDiv.innerHTML = '';
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.textContent = showingBookmarks ? item.name : `${new Date(item.timestamp).toLocaleString()} ${item.url}`;
+                div.onclick = () => {
+                    document.getElementById('url').value = item.url;
+                    document.getElementById('method').value = item.method;
+                    document.getElementById('headers').value = item.headers;
+                    document.getElementById('body').value = item.body;
+                    updateBodyState();
+                };
+                listDiv.appendChild(div);
+            });
+        }
+
+        function updateBodyState() {
+            const method = document.getElementById('method').value;
+            const bodyField = document.getElementById('body');
+            if (method === 'GET') bodyField.disabled = true;
+            else bodyField.disabled = false;
+        }
+
+        document.getElementById('method').addEventListener('change', updateBodyState);
+
+        document.getElementById('execute').addEventListener('click', async () => {
+            const url = document.getElementById('url').value;
+            const method = document.getElementById('method').value;
+            let headers = {};
+            try { headers = JSON.parse(document.getElementById('headers').value); }
+            catch (e) { alert('Header JSON形式エラー'); return; }
+            const body = document.getElementById('body').value;
+
+            const options = { method, headers };
+            if (method !== 'GET') options.body = body;
+
+            const responseDiv = document.getElementById('response');
+            responseDiv.textContent = '実行中...';
+            try {
+                const res = await fetch(url, options);
+                let text = await res.text();
+
+                text = text.replaceAll(/(\\r\\n|\\r|\\n)/g, '\n');
+                text = text.replaceAll(/\\t/g, '\t');
+                console.log(text)
+
+                responseDiv.textContent = text;
+            } catch (e) {
+                responseDiv.textContent = 'Error: ' + e;
+            }
+            if (latestLog && latestLog.url === url && latestLog.method === method && latestLog.headers === JSON.stringify(headers) && latestLog.body === body) {
+                // 同一内容の連続実行はログに残さない
+                return;
+            }
+            addLog({ url, method, headers: JSON.stringify(headers), body });
+            if (!showingBookmarks) renderList(await getLogs());
+        });
+
+        document.getElementById('bookmark').addEventListener('click', async () => {
+            const url = document.getElementById('url').value;
+            const method = document.getElementById('method').value;
+            const headers = document.getElementById('headers').value;
+            const body = document.getElementById('body').value;
+            addBookmark({ url, method, headers, body });
+            if (showingBookmarks) renderList(await getBookmarks());
+        });
+
+        document.getElementById('toggle-log').addEventListener('click', async () => {
+            showingBookmarks = !showingBookmarks;
+            document.getElementById('list-title').textContent = showingBookmarks ? 'BookmarkList' : 'RequestLog';
+            const items = showingBookmarks ? await getBookmarks() : await getLogs();
+            renderList(items);
+        });
+
+        (async () => {
+            await openDB();
+            const logs = await getLogs();
+            renderList(logs);
+            if (logs.length) {
+                const last = logs[0]; // 最遅（先頭）の履歴
+                document.getElementById('url').value = last.url;
+                document.getElementById('method').value = last.method;
+                document.getElementById('headers').value = last.headers;
+                document.getElementById('body').value = last.body;
+                updateBodyState();
+            }
+        })();
+    </script>
+
+</body>
+
+</html>
