@@ -15,79 +15,79 @@ public class Orders {
      * 注文IDです。
      */
     @Size(max=12)
-    private String orderId;
+    private String OrderId;
 
 
     /**
      * 顧客IDです。
      */
     @Size(max=10)
-    private String customerId;
+    private String CustomerId;
 
 
     /**
      * 注文金額です。
      */
 
-    private BigDecimal orderAmount;
+    private BigDecimal OrderAmount;
 
 
     /**
      * 状態です。
      */
     @Size(max=20)
-    private String status;
+    private String Status;
 
 
     /**
      * 作成日時です。
      */
 
-    private LocalDate createdAt;
+    private LocalDate CreatedAt;
 
 
 
     public String getOrderId() {
-        return orderId;
+        return OrderId;
     }
 
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
+    public void setOrderId(String OrderId) {
+        this.OrderId = OrderId;
     }
 
 
     public String getCustomerId() {
-        return customerId;
+        return CustomerId;
     }
 
-    public void setCustomerId(String customerId) {
-        this.customerId = customerId;
+    public void setCustomerId(String CustomerId) {
+        this.CustomerId = CustomerId;
     }
 
 
     public BigDecimal getOrderAmount() {
-        return orderAmount;
+        return OrderAmount;
     }
 
-    public void setOrderAmount(BigDecimal orderAmount) {
-        this.orderAmount = orderAmount;
+    public void setOrderAmount(BigDecimal OrderAmount) {
+        this.OrderAmount = OrderAmount;
     }
 
 
     public String getStatus() {
-        return status;
+        return Status;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setStatus(String Status) {
+        this.Status = Status;
     }
 
 
     public LocalDate getCreatedAt() {
-        return createdAt;
+        return CreatedAt;
     }
 
-    public void setCreatedAt(LocalDate createdAt) {
-        this.createdAt = createdAt;
+    public void setCreatedAt(LocalDate CreatedAt) {
+        this.CreatedAt = CreatedAt;
     }
 }

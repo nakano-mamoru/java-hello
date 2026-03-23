@@ -14,111 +14,111 @@ public class Customer {
      * 顧客IDです。
      */
     @Size(max=10)
-    private String customerId;
+    private String CustomerId;
 
 
     /**
      * 顧客名です。
      */
     @Size(max=100)
-    private String customerName;
+    private String CustomerName;
 
 
     /**
      * メールアドレスです。
      */
     @Size(max=255)
-    private String email;
+    private String Email;
 
 
     /**
      * 電話番号です。
      */
     @Size(max=20)
-    private String phoneNumber;
+    private String PhoneNumber;
 
 
     /**
      * 年齢です。
      */
 
-    private Integer age;
+    private Integer Age;
 
 
     /**
      * 性別です。
      */
     @Size(max=1)
-    private String gender;
+    private String Gender;
 
 
     /**
      * 作成日時です。
      */
 
-    private LocalDate createdAt;
+    private LocalDate CreatedAt;
 
 
 
     public String getCustomerId() {
-        return customerId;
+        return CustomerId;
     }
 
-    public void setCustomerId(String customerId) {
-        this.customerId = customerId;
+    public void setCustomerId(String CustomerId) {
+        this.CustomerId = CustomerId;
     }
 
 
     public String getCustomerName() {
-        return customerName;
+        return CustomerName;
     }
 
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
+    public void setCustomerName(String CustomerName) {
+        this.CustomerName = CustomerName;
     }
 
 
     public String getEmail() {
-        return email;
+        return Email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setEmail(String Email) {
+        this.Email = Email;
     }
 
 
     public String getPhoneNumber() {
-        return phoneNumber;
+        return PhoneNumber;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setPhoneNumber(String PhoneNumber) {
+        this.PhoneNumber = PhoneNumber;
     }
 
 
     public Integer getAge() {
-        return age;
+        return Age;
     }
 
-    public void setAge(Integer age) {
-        this.age = age;
+    public void setAge(Integer Age) {
+        this.Age = Age;
     }
 
 
     public String getGender() {
-        return gender;
+        return Gender;
     }
 
-    public void setGender(String gender) {
-        this.gender = gender;
+    public void setGender(String Gender) {
+        this.Gender = Gender;
     }
 
 
     public LocalDate getCreatedAt() {
-        return createdAt;
+        return CreatedAt;
     }
 
-    public void setCreatedAt(LocalDate createdAt) {
-        this.createdAt = createdAt;
+    public void setCreatedAt(LocalDate CreatedAt) {
+        this.CreatedAt = CreatedAt;
     }
 }

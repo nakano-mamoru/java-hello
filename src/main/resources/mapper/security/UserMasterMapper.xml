@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.security.UserMasterMapper">
+
+    <resultMap id="UserMasterResult" type="com.example.demo.security.UserMaster">
+        <id property="userId" column="UserId"/>
+        <result property="userName" column="UserName"/>
+        <result property="password" column="Password"/>
+        <result property="role" column="Role"/>
+        <result property="userCreatedAt" column="UserCreatedAt"/>
+        <result property="userUpdatedAt" column="UserUpdatedAt"/>
+    </resultMap>
+
+    <select id="findByUserName" resultMap="UserMasterResult">
+        SELECT *
+        FROM sales.user_master
+        WHERE UserName = #{userName}
+        LIMIT 1
+    </select>
+
+    <select id="findByUserId" resultMap="UserMasterResult">
+        SELECT *
+        FROM sales.user_master
+        WHERE UserId = #{userId}
+        LIMIT 1
+    </select>
+
+    <insert id="insertUser">
+        INSERT INTO sales.user_master
+        (UserId, UserName, Password, Role, UserCreatedAt, UserUpdatedAt)
+        VALUES
+        (#{userId}, #{userName}, #{password}, #{role}, #{userCreatedAt}, #{userUpdatedAt})
+    </insert>
+
+</mapper>

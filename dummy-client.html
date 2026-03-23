@@ -20,7 +20,8 @@
 
 
         button {
-            /* margin-top: 8px; */
+            margin-top: 2px;
+            padding: 0 6px;
         }
 
         .list-item {
@@ -39,18 +40,27 @@
         }
 
         #left {
-            flex: 1;
+            width: calc(100% - 360px);
+            min-width: 240px;
+            max-width: 90%;
             padding: 10px;
-            /* display: flex; */
-            /* flex-direction: column; */
             overflow: auto;
+            flex: none;
+        }
+
+        #splitter {
+            width: 8px;
+            cursor: col-resize;
+            background: #ddd;
+            flex: none;
+            position: relative;
         }
 
         #right {
-            width: 350px;
             border-left: 1px solid #ccc;
             overflow: auto;
             padding: 10px;
+            flex: none;
         }
 
         #response {
@@ -60,7 +70,28 @@
             padding: 5px;
             white-space: pre-wrap;
             resize: vertical;
-            font-size:smaller;
+            font-size: smaller;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-item label,
+        .list-item .item-content {
+            flex: 1;
+            min-width: 0;
+            cursor: pointer;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .list-item button {
+            margin-left: 4px;
+            font-size: smaller;
         }
     </style>
 </head>
@@ -81,20 +112,27 @@
         Header (JSON形式): <textarea id="headers"
                 rows="3">{ "Content-Type": "application/json; charset=UTF-8" }</textarea>
         Body: <textarea id="body" rows="5">{}</textarea>
-Response:
+        <div style="margin-top:8px;">
+            Response: &nbsp;&nbsp;&nbsp;&nbsp;<button id="toggle-json-format">JSON整形: OFF</button>
+        </div>
         <div id="response" style="bottom:1px"></div>
     </div>
+
+    <div id="splitter"></div>
 
     <div id="right">
         <div>
             <button id="toggle-log">⇔</button>
             <span id="list-title">RequestLog</span>
+            <button id="clear-log">CLEAR</button>
         </div>
         <div id="list"></div>
     </div>
 
     <script>
         let latestLog = null;
+        let latestResponseText = '';
+        let jsonFormatEnabled = false;
         const DB_NAME = 'BrowserAPIClientDB';
         const DB_VERSION = 1;
         let db;
@@ -116,6 +154,26 @@ Response:
                 request.onsuccess = e => { db = e.target.result; resolve(db); };
                 request.onerror = e => reject(e);
             });
+        }
+
+        function setResponseText(text) {
+            latestResponseText = text || '';
+            const responseDiv = document.getElementById('response');
+            if (jsonFormatEnabled) {
+                try {
+                    const obj = JSON.parse(latestResponseText);
+                    responseDiv.textContent = JSON.stringify(obj, null, 2);
+                } catch (e) {
+                    responseDiv.textContent = latestResponseText;
+                }
+            } else {
+                responseDiv.textContent = latestResponseText;
+            }
+        }
+
+        async function refreshList() {
+            const items = showingBookmarks ? await getBookmarks() : await getLogs();
+            renderList(items);
         }
 
         function addLog(entry) {
@@ -174,6 +232,15 @@ Response:
             });
         }
 
+        function clearLogs() {
+            return new Promise(resolve => {
+                const tx = db.transaction('RequestLog', 'readwrite');
+                const store = tx.objectStore('RequestLog');
+                store.clear();
+                tx.oncomplete = () => resolve();
+                renderList([]);
+            });
+        }
         function renderList(items) {
             const listDiv = document.getElementById('list');
             latestLog = items.length ? items[0] : null;
@@ -181,14 +248,50 @@ Response:
             items.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'list-item';
-                div.textContent = showingBookmarks ? item.name : `${new Date(item.timestamp).toLocaleString()} ${item.url}`;
-                div.onclick = () => {
-                    document.getElementById('url').value = item.url;
-                    document.getElementById('method').value = item.method;
-                    document.getElementById('headers').value = item.headers;
-                    document.getElementById('body').value = item.body;
+
+                const content = document.createElement('span');
+                content.className = 'item-content';
+                const label = showingBookmarks ? (item.name || item.url) : (item.name || `${new Date(item.timestamp).toLocaleString()} ${item.url}`);
+                content.textContent = label;
+                content.title = label;
+                content.onclick = () => {
+                    document.getElementById('url').value = item.url || '';
+                    document.getElementById('method').value = item.method || 'GET';
+                    document.getElementById('headers').value = item.headers || '{ "Content-Type": "application/json; charset=UTF-8" }';
+                    document.getElementById('body').value = item.body || '{}';
                     updateBodyState();
                 };
+
+                const actions = document.createElement('span');
+
+                const rename = document.createElement('button');
+                rename.textContent = 'リネーム';
+                rename.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const newName = prompt('名前を入力してください', item.name || item.url);
+                    if (!newName) return;
+                    const tx = db.transaction(showingBookmarks ? 'Bookmark' : 'RequestLog', 'readwrite');
+                    const store = tx.objectStore(showingBookmarks ? 'Bookmark' : 'RequestLog');
+                    const updated = { ...item, name: newName };
+                    store.put(updated);
+                    tx.oncomplete = () => refreshList();
+                });
+
+                const remove = document.createElement('button');
+                remove.textContent = '削除';
+                remove.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (!confirm('本当に削除しますか？')) return;
+                    const tx = db.transaction(showingBookmarks ? 'Bookmark' : 'RequestLog', 'readwrite');
+                    const store = tx.objectStore(showingBookmarks ? 'Bookmark' : 'RequestLog');
+                    store.delete(item.id);
+                    tx.oncomplete = () => refreshList();
+                });
+
+                actions.appendChild(rename);
+                actions.appendChild(remove);
+                div.appendChild(content);
+                div.appendChild(actions);
                 listDiv.appendChild(div);
             });
         }
@@ -201,6 +304,29 @@ Response:
         }
 
         document.getElementById('method').addEventListener('change', updateBodyState);
+
+        const splitter = document.getElementById('splitter');
+        splitter.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            const startX = e.clientX;
+            const startWidth = document.getElementById('left').getBoundingClientRect().width;
+            const onMouseMove = (ev) => {
+                const newWidth = Math.max(220, Math.min(window.innerWidth - 360, startWidth + (ev.clientX - startX)));
+                document.getElementById('left').style.width = newWidth + 'px';
+            };
+            const onMouseUp = () => {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            };
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+
+        document.getElementById('toggle-json-format').addEventListener('click', () => {
+            jsonFormatEnabled = !jsonFormatEnabled;
+            document.getElementById('toggle-json-format').textContent = `JSON整形: ${jsonFormatEnabled ? 'ON' : 'OFF'}`;
+            setResponseText(latestResponseText);
+        });
 
         document.getElementById('execute').addEventListener('click', async () => {
             const url = document.getElementById('url').value;
@@ -223,9 +349,9 @@ Response:
                 text = text.replaceAll(/\\t/g, '\t');
                 console.log(text)
 
-                responseDiv.textContent = text;
+                setResponseText(text);
             } catch (e) {
-                responseDiv.textContent = 'Error: ' + e;
+                setResponseText('Error: ' + e);
             }
             if (latestLog && latestLog.url === url && latestLog.method === method && latestLog.headers === JSON.stringify(headers) && latestLog.body === body) {
                 // 同一内容の連続実行はログに残さない
@@ -249,6 +375,12 @@ Response:
             document.getElementById('list-title').textContent = showingBookmarks ? 'BookmarkList' : 'RequestLog';
             const items = showingBookmarks ? await getBookmarks() : await getLogs();
             renderList(items);
+            document.getElementById('clear-log').style.display = showingBookmarks ? 'none' : 'inline-block';
+        });
+        document.getElementById('clear-log').addEventListener('click', async () => {
+            if (confirm('RequestLogを全て削除しますか？')) {
+                await clearLogs();
+            }
         });
 
         (async () => {

@@ -1,4 +1,4 @@
-﻿package com.example.demo.base.filter;
+package com.example.demo.base.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -40,6 +40,7 @@ public class LoggingFilter extends OncePerRequestFilter {
         this.errorRequestPath = errorRequestPath;
     }
 
+    // リクエストの開始と終了をログに出力し、リクエストIDをMDCにセットする
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
@@ -122,3 +123,4 @@ public class LoggingFilter extends OncePerRequestFilter {
         return UUID.randomUUID().toString();
     }
 }
+

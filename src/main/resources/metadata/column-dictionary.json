@@ -75,5 +75,162 @@
     "LogicalName": "作成日時",
     "PhysicalName": "CreatedAt",
     "Type": "DATETIME"
+  },
+  "UserId": {
+    "Index": 11,
+    "LogicalName": "ユーザID",
+    "PhysicalName": "UserId",
+    "Type": "VARCHAR",
+    "Length": "50"
+  },
+  "UserName": {
+    "Index": 12,
+    "LogicalName": "ユーザ名",
+    "PhysicalName": "UserName",
+    "Type": "VARCHAR",
+    "Length": "100"
+  },
+  "Password": {
+    "Index": 13,
+    "LogicalName": "パスワード",
+    "PhysicalName": "Password",
+    "Type": "VARCHAR",
+    "Length": "255"
+  },
+  "Role": {
+    "Index": 14,
+    "LogicalName": "権限",
+    "PhysicalName": "Role",
+    "Type": "VARCHAR",
+    "Length": "50"
+  },
+  "UserCreatedAt": {
+    "Index": 15,
+    "LogicalName": "ユーザ作成日時",
+    "PhysicalName": "UserCreatedAt",
+    "Type": "DATETIME"
+  },
+  "UserUpdatedAt": {
+    "Index": 16,
+    "LogicalName": "ユーザ更新日時",
+    "PhysicalName": "UserUpdatedAt",
+    "Type": "DATETIME"
+  },
+  "顧客ID": {
+    "Index": 1,
+    "LogicalName": "顧客ID",
+    "PhysicalName": "CustomerId",
+    "Type": "VARCHAR",
+    "Length": "10",
+    "RegexPattern": "^[0-9]+$"
+  },
+  "顧客名": {
+    "Index": 2,
+    "LogicalName": "顧客名",
+    "PhysicalName": "CustomerName",
+    "Type": "VARCHAR",
+    "Length": "100"
+  },
+  "メールアドレス": {
+    "Index": 3,
+    "LogicalName": "メールアドレス",
+    "PhysicalName": "Email",
+    "Type": "VARCHAR",
+    "Length": "255",
+    "RegexPattern": "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+  },
+  "電話番号": {
+    "Index": 4,
+    "LogicalName": "電話番号",
+    "PhysicalName": "PhoneNumber",
+    "Type": "VARCHAR",
+    "Length": "20",
+    "RegexPattern": "^[0-9\\-]+$"
+  },
+  "年齢": {
+    "Index": 5,
+    "LogicalName": "年齢",
+    "PhysicalName": "Age",
+    "Type": "INT",
+    "CodeType": "AGE_CODE",
+    "Range": "0,120"
+  },
+  "性別": {
+    "Index": 6,
+    "LogicalName": "性別",
+    "PhysicalName": "Gender",
+    "Type": "CHAR",
+    "Length": "1",
+    "CodeType": "GENDER_CODE"
+  },
+  "注文ID": {
+    "Index": 7,
+    "LogicalName": "注文ID",
+    "PhysicalName": "OrderId",
+    "Type": "VARCHAR",
+    "Length": "12",
+    "RegexPattern": "^[A-Z0-9]+$"
+  },
+  "注文金額": {
+    "Index": 8,
+    "LogicalName": "注文金額",
+    "PhysicalName": "OrderAmount",
+    "Type": "DECIMAL",
+    "Length": "10,2",
+    "Range": "0,99999999.99"
+  },
+  "状態": {
+    "Index": 9,
+    "LogicalName": "状態",
+    "PhysicalName": "Status",
+    "Type": "VARCHAR",
+    "Length": "20",
+    "CodeType": "ORDER_STATUS"
+  },
+  "作成日時": {
+    "Index": 10,
+    "LogicalName": "作成日時",
+    "PhysicalName": "CreatedAt",
+    "Type": "DATETIME"
+  },
+  "ユーザID": {
+    "Index": 11,
+    "LogicalName": "ユーザID",
+    "PhysicalName": "UserId",
+    "Type": "VARCHAR",
+    "Length": "50"
+  },
+  "ユーザ名": {
+    "Index": 12,
+    "LogicalName": "ユーザ名",
+    "PhysicalName": "UserName",
+    "Type": "VARCHAR",
+    "Length": "100"
+  },
+  "パスワード": {
+    "Index": 13,
+    "LogicalName": "パスワード",
+    "PhysicalName": "Password",
+    "Type": "VARCHAR",
+    "Length": "255"
+  },
+  "権限": {
+    "Index": 14,
+    "LogicalName": "権限",
+    "PhysicalName": "Role",
+    "Type": "VARCHAR",
+    "Length": "50"
+  },
+  "ユーザ作成日時": {
+    "Index": 15,
+    "LogicalName": "ユーザ作成日時",
+    "PhysicalName": "UserCreatedAt",
+    "Type": "DATETIME"
+  },
+  "ユーザ更新日時": {
+    "Index": 16,
+    "LogicalName": "ユーザ更新日時",
+    "PhysicalName": "UserUpdatedAt",
+    "Type": "DATETIME"
   }
 }
